@@ -2,6 +2,7 @@
 
 namespace DavidNineRoc\Payment;
 
+use DavidNineRoc\Payment\Contracts\Repository;
 use Illuminate\Support\ServiceProvider;
 
 class PaysApiServiceProvider extends ServiceProvider
@@ -31,6 +32,12 @@ class PaysApiServiceProvider extends ServiceProvider
     {
         $this->app->bind('paysapi', function () {
             return new PaysApi();
+        });
+
+        $this->app->bind(Repository::class, function () {
+            return new Config(
+                config('paysapi', [])
+            );
         });
     }
 }

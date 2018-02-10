@@ -21,9 +21,9 @@ class PaysApi
      * @param array $config
      * @return string
      */
-    public function pay(array $config)
+    public function pay(Config $config)
     {
-        return $this->buildFormHtml($config);
+        return $this->buildFormHtml($config->buildPayConfig());
     }
 
     /**
@@ -35,7 +35,6 @@ class PaysApi
     {
         $form = "<form id='pay_form' action='{$this->payUrl}' method='post'>";
         foreach ($config as $key => $value) {
-            dump($value);
             $form .= "<input type='hidden' name='{$key}' value='{$value}'/>";
         }
         $form .= "</form>";

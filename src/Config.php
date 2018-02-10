@@ -251,6 +251,14 @@ class Config implements Repository
         return array_intersect_key($this->config, array_flip((array) $keys));
     }
 
+    /**
+     * 方便门面方式获取自己
+     * @return $this
+     */
+    public function getInstance()
+    {
+        return $this;
+    }
 
     /**
      * 生成支付所需的参数。
