@@ -26,6 +26,12 @@ class PaysApi
     protected $syncPayUrl = 'https://pay.paysapi.com/?format=json';
 
     /**
+     * 订单查询接口
+     * @var string
+     */
+    protected $queryUrl = 'https://api.paysapi.com/get_order_staus_by_id';
+
+    /**
      * 支付操作。
      * 首先会先从 Config 中获取支付所需的参数
      * 然后生成一个自动提交的表单
@@ -76,5 +82,26 @@ class PaysApi
         }
 
         return $verified ? $matching() : $mismatching();
+    }
+
+    /**
+     * 根据订单号查找数据
+     * @param $orderId
+     * @return string
+     */
+    public function find($orderId)
+    {
+        $this->setOrderId($orderId)->buildQueryConfig();
+
+        return Http::get(
+                $this->queryUrl,
+                $this->config,
+                function ($error) {
+                    return [
+                        'code' => 400,
+                        'msg' => $error,
+                    ];
+                }
+            );
     }
 }

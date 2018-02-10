@@ -93,13 +93,15 @@ class PayController extends Controller
     }
     
      /**
-     * 跳转到正常页面
-     * @param Request $request
-     */
-    public function returnUrl(Request $request)
-    {
-        dd($request->input('orderid'));
-    }
+      * 查找订单
+      * @param PaysApi $paysApi
+      */
+     public function queryOrder(PaysApi $paysApi)
+     {
+         $orderId = '12345678910';
+ 
+         $paysApi->find($orderId);
+     }
 }
 
 ```

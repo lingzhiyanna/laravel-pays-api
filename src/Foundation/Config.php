@@ -66,6 +66,11 @@ trait Config
         ]
     ];
 
+    protected $queryConfig = [
+        'full' => ['uid', 'orderid', 'r', 'token'],
+        'require' => ['uid', 'orderid', 'r', 'key']
+    ];
+
     /************************************
      * 设置配置的函数.
      * 一次性设置多个配置项
@@ -215,6 +220,15 @@ trait Config
     }
 
     /**
+     * 设置一个项为随机值
+     * @param $key
+     */
+    public function setRandom($key)
+    {
+        $this->set($key, md5(microtime()));
+    }
+
+    /**
      * 设置秘钥参数
      * @param $key
      * @return $this
@@ -319,6 +333,7 @@ trait Config
     }
 
 
+
     /************************************
      * 生成支付所需的参数。
      * 1. 先去设置必须包含，但又没有给的参数
@@ -373,9 +388,7 @@ trait Config
 
         // 建议自己生成 uuid
         if (!$this->has('orderid')) {
-            $this->setOrderId(
-                md5(microtime())
-            );
+            $this->setRandom('orderid');
         }
     }
 
@@ -393,11 +406,7 @@ trait Config
         // 按参数名字母升序排序
         ksort($config);
         // 把参数值拼接在一起
-        $key = implode('', $config);
-        // 做md5-32位加密，取字符串小写。得到key
-        $key = strtolower(
-            md5($key)
-        );
+        $key = $this->catAndEncode($config);
 
         return $key;
     }
@@ -428,7 +437,7 @@ trait Config
      * 支付接口传过来的消息
      ************************************
      */
-    public function verifyNotifyValidity()
+    protected function verifyNotifyValidity()
     {
         $this->only($this->notifyConfig['full']);
 
@@ -446,5 +455,61 @@ trait Config
         $sign = $this->generateSignKey($this->config);
 
         return $key === $sign;
+    }
+
+    /************************************
+     * 检查 Notify 参数的合法性，确定是从
+     * 支付接口传过来的消息
+     ************************************
+     */
+    protected function buildQueryConfig()
+    {
+        // 设置为随机值
+        $this->setRandom('r');
+        $this->only($this->queryConfig['full']);
+
+        // 生成 key
+        $this->setKey(
+            $this->catAndEncode(
+                $this->getQueryConfigOrder()
+            )
+        );
+
+        // 删除 token
+        $this->delete('token');
+
+        $this->checkConfigIsFull(
+            $this->config,
+            $this->queryConfig['require']
+        );
+
+        return $this->config;
+    }
+
+    /**
+     * 获取按照 queryConfig['full'] 里的值
+     * 排序后的配置项
+     * @return array
+     */
+    protected function getQueryConfigOrder()
+    {
+        $config = [];
+        foreach ($this->queryConfig['full'] as $key) {
+            $config[$key] = $this->config[$key];
+        }
+
+        return $this->config = $config;
+    }
+
+    /**
+     * 拼接，md5 加密，转小写
+     * @param $array
+     * @return string
+     */
+    protected function catAndEncode($array)
+    {
+        $string = implode('', $array);
+        $string = md5($string);
+        return strtolower($string);
     }
 }
