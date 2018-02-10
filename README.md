@@ -1,8 +1,6 @@
 # laravel-pays-api
 <p align="center">
 <a href="https://styleci.io/repos/120973265"><img src="https://styleci.io/repos/120973265/shield?branch=master" alt="StyleCI"></a>
-
-<a href="https://packagist.org/packages/davidnineroc/laravel-pays-api"><img src="https://poser.pugx.org/davidnineroc/laravel-pays-api/v/stable" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/davidnineroc/laravel-pays-api"><img src="https://poser.pugx.org/davidnineroc/laravel-pays-api/downloads" alt="Total Downloads"></a>
 <a href="https://packagist.org/packages/davidnineroc/laravel-pays-api"><img src="https://poser.pugx.org/davidnineroc/laravel-pays-api/license" alt="License"></a>
 </p> 
