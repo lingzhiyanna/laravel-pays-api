@@ -2,20 +2,21 @@
 
 namespace DavidNineRoc\Payment\Foundation;
 
-
 class Http
 {
     /**
      * 发送一个 http get 请求
+     *
      * @param $url
      * @param array $parameters
      * @param $errorFunc
+     *
      * @return string
      */
     public static function get($url, $parameters = [], $errorFunc)
     {
-        if (! empty($parameters)) {
-            $url .= '?' . http_build_query($parameters);
+        if (!empty($parameters)) {
+            $url .= '?'.http_build_query($parameters);
         }
 
         // 启动一个CURL会话

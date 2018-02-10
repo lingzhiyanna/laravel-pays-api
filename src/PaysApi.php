@@ -26,7 +26,8 @@ class PaysApi
     protected $syncPayUrl = 'https://pay.paysapi.com/?format=json';
 
     /**
-     * 订单查询接口
+     * 订单查询接口.
+     *
      * @var string
      */
     protected $queryUrl = 'https://api.paysapi.com/get_order_staus_by_id';
@@ -51,7 +52,8 @@ class PaysApi
      * 异步请求支付.
      * 首先会先从 Config 中获取支付所需的参数
      * 然后直接通过 post 方式请求支付接口
-     * 通过支付接口返回 json 数据
+     * 通过支付接口返回 json 数据.
+     *
      * @return string
      */
     public function syncPay()
@@ -69,9 +71,11 @@ class PaysApi
     }
 
     /**
-     * 验证付款成功回调通知
+     * 验证付款成功回调通知.
+     *
      * @param Closure|null $matching
      * @param Closure|null $mismatching
+     *
      * @return bool|mixed
      */
     public function verify(Closure $matching = null, Closure $mismatching = null)
@@ -85,8 +89,10 @@ class PaysApi
     }
 
     /**
-     * 根据订单号查找数据
+     * 根据订单号查找数据.
+     *
      * @param $orderId
+     *
      * @return string
      */
     public function find($orderId)

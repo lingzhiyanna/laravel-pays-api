@@ -2,7 +2,6 @@
 
 namespace DavidNineRoc\Payment\Foundation;
 
-
 class Util
 {
     /**
