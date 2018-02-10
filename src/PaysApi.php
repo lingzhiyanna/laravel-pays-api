@@ -5,6 +5,7 @@ namespace DavidNineRoc\Payment;
 class PaysApi
 {
     use Config;
+
     /**
      * 支付接口.
      *
@@ -21,6 +22,7 @@ class PaysApi
 
     /**
      * 支付操作.
+     *
      * @return string
      */
     public function pay()
@@ -32,12 +34,13 @@ class PaysApi
 
     public function verify(Config $config)
     {
-
     }
 
     /**
-     * 异步请求支付
+     * 异步请求支付.
+     *
      * @param Config $config
+     *
      * @return mixed
      */
     public function syncPay()
@@ -48,7 +51,7 @@ class PaysApi
             function ($error) {
                 return [
                     'code' => 400,
-                    'msg' => $error
+                    'msg' => $error,
                 ];
             }
         );
@@ -74,10 +77,12 @@ class PaysApi
 
     /**
      * 发送一个 Http post 请求
+     *
      * @param $url
      * @param $parameters
      * @param $errorFunc
      * @param int $timeout
+     *
      * @return mixed
      */
     protected function httpPost($url, $parameters, $errorFunc, $timeout = 5)

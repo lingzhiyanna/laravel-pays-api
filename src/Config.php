@@ -39,8 +39,10 @@ trait Config
     ];
 
     /**
-     * 一次性设置多个配置项
+     * 一次性设置多个配置项.
+     *
      * @param array $config
+     *
      * @return $this
      */
     public function setOptions(array $config = [])
