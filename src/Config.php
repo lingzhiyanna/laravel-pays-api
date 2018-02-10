@@ -3,10 +3,39 @@
 namespace DavidNineRoc\Payment;
 
 use DavidNineRoc\Payment\Contracts\Repository;
+use DavidNineRoc\Payment\Exceptions\ConfigException;
 
 class Config implements Repository
 {
     protected $config = [];
+    /**
+     * 订单必须的配置参数
+     * @var array
+     */
+    protected $payConfig = [
+        // 完整的参数列表
+        'full' => [
+            'uid',
+            'price',
+            'istype',
+            'notify_url',
+            'return_url',
+            'orderid',
+            'orderuid',
+            'goodsname',
+            'key'
+        ],
+        // 必须的参数列表
+        'require' => [
+            'uid',
+            'price',
+            'istype',
+            'notify_url',
+            'return_url',
+            'orderid',
+            'key'
+        ]
+    ];
 
     public function __construct(array $config = [])
     {
@@ -130,31 +159,6 @@ class Config implements Repository
     }
 
     /**
-     * 生成支付所需的参数。
-     * @return array
-     */
-    public function buildPayConfig()
-    {
-        // 先生成秘钥
-        $this->generateSignKey();
-
-        // 获取支付所需的参数
-        $config = $this->only([
-            'uid',
-            'price',
-            'istype',
-            'notify_url',
-            'return_url',
-            'orderid',
-            'orderuid',
-            'goodsname',
-            'key'
-        ]);
-
-        return $config;
-    }
-
-    /**
      * 生成秘钥，
      * 把使用到的所有参数，连Token一起，
      * 按参数名字母升序排序。把参数值拼接在一起。
@@ -191,7 +195,6 @@ class Config implements Repository
             unset($this->config[$key]);
         }
     }
-
 
     /**
      * 获取一个配置项。
@@ -246,5 +249,73 @@ class Config implements Repository
     public function only($keys)
     {
         return array_intersect_key($this->config, array_flip((array) $keys));
+    }
+
+
+    /**
+     * 生成支付所需的参数。
+     * @return array
+     */
+    public function buildPayConfig()
+    {
+        // 处理必须的配置
+        $this->setPayDefaultConfig();
+
+        // 先生成秘钥
+        $this->generateSignKey();
+
+        // 取到支付所需的所有参数
+        $config = $this->only(
+            $this->payConfig['full']
+        );
+
+        $this->checkConfigIsFull(
+            $config,
+            $this->payConfig['require']
+        );
+
+        return $config;
+    }
+
+    /**
+     * 如果有些参数没有设置，而又可以系统生成
+     * 那么就让系统生成这些默认参数。
+     */
+    protected function setPayDefaultConfig()
+    {
+        if (! $this->has('price')) {
+            $this->setPrice(0.01);
+        }
+
+        // 默认支付宝支付
+        if (! $this->has('istype')) {
+            $this->setPayType(1);
+        }
+
+        // 建议自己生成 uuid
+        if (! $this->has('orderid')) {
+            $this->setOrderId(
+                md5(microtime())
+            );
+        }
+    }
+
+    /**
+     * 检查参数是否符合了 $requireConfig 中所有的值
+     * @param $config
+     * @param $requireConfig
+     * @throws ConfigException
+     */
+    protected function checkConfigIsFull($config, $requireConfig)
+    {
+        $keys = array_keys($config);
+
+        $diff = array_diff($requireConfig, $keys);
+        // 如果不为空，代表所需参数不齐全
+        if (! empty($diff)) {
+            throw new ConfigException(
+                "缺少参数，分别是：[" . implode('], [', $diff) . "]"
+            );
+        }
     }
 }
