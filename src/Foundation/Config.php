@@ -1,6 +1,6 @@
 <?php
 
-namespace DavidNineRoc\Payment;
+namespace DavidNineRoc\Payment\Foundation;
 
 use DavidNineRoc\Payment\Exceptions\ConfigException;
 

@@ -2,6 +2,10 @@
 
 namespace DavidNineRoc\Payment;
 
+use DavidNineRoc\Payment\Foundation\Config;
+use DavidNineRoc\Payment\Foundation\Http;
+use DavidNineRoc\Payment\Foundation\Util;
+
 class PaysApi
 {
     use Config;
@@ -27,7 +31,8 @@ class PaysApi
      */
     public function pay()
     {
-        return $this->buildFormHtml(
+        return Util::buildFormHtml(
+            $this->payUrl,
             $this->buildPayConfig()
         );
     }
@@ -38,14 +43,11 @@ class PaysApi
 
     /**
      * 异步请求支付.
-     *
-     * @param Config $config
-     *
      * @return mixed
      */
     public function syncPay()
     {
-        return $this->httpPost(
+        return Http::post(
             $this->syncPayUrl,
             $this->buildPayConfig(),
             function ($error) {
@@ -57,54 +59,4 @@ class PaysApi
         );
     }
 
-    /**
-     * 根据参数值，生成 key => value 的表单.
-     *
-     * @param $config
-     *
-     * @return string
-     */
-    protected function buildFormHtml($config)
-    {
-        $form = "<form id='pay_form' action='{$this->payUrl}' method='post'>";
-        foreach ($config as $key => $value) {
-            $form .= "<input type='hidden' name='{$key}' value='{$value}'/>";
-        }
-        $form .= '</form>';
-
-        return $form."<script>document.querySelector('#pay_form').submit();</script>";
-    }
-
-    /**
-     * 发送一个 Http post 请求
-     *
-     * @param $url
-     * @param $parameters
-     * @param $errorFunc
-     * @param int $timeout
-     *
-     * @return mixed
-     */
-    protected function httpPost($url, $parameters, $errorFunc, $timeout = 5)
-    {
-        // 启动一个CURL会话
-        $curl = curl_init();
-        // 要访问的地址
-        curl_setopt($curl, CURLOPT_URL, $url);
-        // 发送一个常规的Post请求
-        curl_setopt($curl, CURLOPT_POST, 1);
-        // Post提交的数据包
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $parameters);
-        // 设置超时限制防止死循环
-        curl_setopt($curl, CURLOPT_TIMEOUT, $timeout);
-        // 获取的信息以文件流的形式返回
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        $result = curl_exec($curl);
-        if ($error = curl_errno($curl)) {
-            return $errorFunc($error);
-        }
-        curl_close($curl);
-
-        return $result;
-    }
 }
