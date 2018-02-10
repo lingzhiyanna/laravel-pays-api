@@ -26,6 +26,10 @@ class PayController extends Controller
             ->setGoodsName('大卫')
             ->setPayType(1);
 
+        /**
+         * 异步方式提交请使用 syncPay
+         * $paysApi->syncPay($config)
+         */
         return $paysApi->pay($config);
     }
     
