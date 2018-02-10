@@ -7,7 +7,8 @@ use DavidNineRoc\Payment\Exceptions\ConfigException;
 trait Config
 {
     /**
-     * 参数配置的容器
+     * 参数配置的容器.
+     *
      * @var array
      */
     protected $config = [];
@@ -43,7 +44,8 @@ trait Config
     ];
 
     /**
-     * 回调后台通知包含的参数
+     * 回调后台通知包含的参数.
+     *
      * @var array
      */
     protected $notifyConfig = [
@@ -54,7 +56,7 @@ trait Config
             'realprice',
             'orderuid',
             'key',
-            'token'
+            'token',
         ],
         'require' => [
             'paysapi_id',
@@ -62,13 +64,13 @@ trait Config
             'price',
             'realprice',
             'key',
-            'token'
-        ]
+            'token',
+        ],
     ];
 
     protected $queryConfig = [
         'full' => ['uid', 'orderid', 'r', 'token'],
-        'require' => ['uid', 'orderid', 'r', 'key']
+        'require' => ['uid', 'orderid', 'r', 'key'],
     ];
 
     /************************************
@@ -221,6 +223,7 @@ trait Config
 
     /**
      * 设置一个项为随机值
+     *
      * @param $key
      */
     public function setRandom($key)
@@ -229,8 +232,10 @@ trait Config
     }
 
     /**
-     * 设置秘钥参数
+     * 设置秘钥参数.
+     *
      * @param $key
+     *
      * @return $this
      */
     protected function setKey($key)
@@ -239,8 +244,6 @@ trait Config
 
         return $this;
     }
-
-
 
     /************************************
      * 设置，删除，查询，获取 参数的方法
@@ -265,7 +268,8 @@ trait Config
     }
 
     /**
-     * 删除一个配置项
+     * 删除一个配置项.
+     *
      * @param $key
      */
     public function delete($key)
@@ -307,9 +311,11 @@ trait Config
     }
 
     /**
-     * 获取并删除配置
+     * 获取并删除配置.
+     *
      * @param $key
      * @param string $default
+     *
      * @return string
      */
     public function pull($key, $default = '')
@@ -331,8 +337,6 @@ trait Config
     {
         return $this->config = array_intersect_key($this->config, array_flip((array) $keys));
     }
-
-
 
     /************************************
      * 生成支付所需的参数。
@@ -398,7 +402,9 @@ trait Config
      * 按参数名字母升序排序。把参数值拼接在一起。
      * 做md5-32位加密，取字符串小写。得到key。
      * 网址类型的参数值不要urlencode。
+     *
      * @param $config
+     *
      * @return string
      */
     protected function generateSignKey($config)
@@ -488,7 +494,8 @@ trait Config
 
     /**
      * 获取按照 queryConfig['full'] 里的值
-     * 排序后的配置项
+     * 排序后的配置项.
+     *
      * @return array
      */
     protected function getQueryConfigOrder()
@@ -502,14 +509,17 @@ trait Config
     }
 
     /**
-     * 拼接，md5 加密，转小写
+     * 拼接，md5 加密，转小写.
+     *
      * @param $array
+     *
      * @return string
      */
     protected function catAndEncode($array)
     {
         $string = implode('', $array);
         $string = md5($string);
+
         return strtolower($string);
     }
 }
