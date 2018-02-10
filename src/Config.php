@@ -2,7 +2,9 @@
 
 namespace DavidNineRoc\Payment;
 
-class Config
+use DavidNineRoc\Payment\Contracts\Repository;
+
+class Config implements Repository
 {
     protected $config = [];
 
@@ -15,7 +17,7 @@ class Config
 
 
     /**
-     * 设置 uid 您的商户唯一标识，注册后在设置里获得。一个24位字符串
+     * 设置 uid 您的商户唯一标识，注册后在设置里获得。一个24位字符串。
      * @param $uid
      * @return $this
      */
@@ -27,7 +29,7 @@ class Config
     }
 
     /**
-     * 设置 token
+     * 设置 token。
      * @param $token
      * @return $this
      */
@@ -39,7 +41,7 @@ class Config
     }
 
     /**
-     * 设置商品价格 单位：元。精确小数点后2位
+     * 设置商品价格 单位：元。精确小数点后2位。
      * @param $price
      * @return $this
      */
@@ -51,7 +53,7 @@ class Config
     }
 
     /**
-     * 设置付款方式 1：支付宝；2：微信支付
+     * 设置付款方式 1：支付宝；2：微信支付。
      * @param $type
      * @return $this
      */
@@ -63,8 +65,8 @@ class Config
     }
 
     /**
-     * 设置通知回调网址
-     * 用户支付成功后，我们服务器会主动发送一个post消息到这个网址
+     * 设置通知回调网址。
+     * 用户支付成功后，我们服务器会主动发送一个post消息到这个网址。
      * @param $notifyUrl
      * @return $this
      */
@@ -76,8 +78,8 @@ class Config
     }
 
     /**
-     * 设置跳转网址
-     * 用户支付成功后，我们会让用户浏览器自动跳转到这个网址
+     * 设置跳转网址。
+     * 用户支付成功后，我们会让用户浏览器自动跳转到这个网址。
      * @param $returnUrl
      * @return $this
      */
@@ -89,8 +91,8 @@ class Config
     }
 
     /**
-     * 设置商户自定义订单号
-     * 我们会据此判别是同一笔订单还是新订单。回调时，会带上这个参数
+     * 设置商户自定义订单号。
+     * 我们会据此判别是同一笔订单还是新订单。回调时，会带上这个参数。
      * @param $orderId
      * @return $this
      */
@@ -102,9 +104,9 @@ class Config
     }
 
     /**
-     * 设置商户自定义客户号
-     * 我们会显示在您后台的订单列表中，方便您看到是哪个用户的付款
-     * 强烈建议填写。可以填用户名也可以填您数据库中的用户uid
+     * 设置商户自定义客户号。
+     * 我们会显示在您后台的订单列表中，方便您看到是哪个用户的付款，
+     * 强烈建议填写。可以填用户名也可以填您数据库中的用户uid。
      * @param $uid
      * @return $this
      */
@@ -116,7 +118,7 @@ class Config
     }
 
     /**
-     * 设置商品名字
+     * 设置商品名字。
      * @param $goodsName
      * @return $this
      */
@@ -128,7 +130,7 @@ class Config
     }
 
     /**
-     * 生成支付所需的参数
+     * 生成支付所需的参数。
      * @return array
      */
     public function buildPayConfig()
@@ -153,7 +155,7 @@ class Config
     }
 
     /**
-     * 生成秘钥
+     * 生成秘钥，
      * 把使用到的所有参数，连Token一起，
      * 按参数名字母升序排序。把参数值拼接在一起。
      * 做md5-32位加密，取字符串小写。得到key。
@@ -180,7 +182,7 @@ class Config
 
 
     /**
-     * 删除配置中的某一项
+     * 删除配置中的某一项。
      * @param $key
      */
     public function delete($key)
@@ -192,7 +194,7 @@ class Config
 
 
     /**
-     * 获取一个配置项
+     * 获取一个配置项。
      * @param $key
      * @param string $default
      * @return string
@@ -209,7 +211,7 @@ class Config
     }
 
     /**
-     * 配置中是否存在这个项
+     * 配置中是否存在这个项。
      * @param $key
      * @return bool
      */
@@ -219,9 +221,9 @@ class Config
     }
 
     /**
-     * 设置一个配置选项
-     * 设置 $cover 为 false 之后
-     * 当存在一个 key 不会覆盖
+     * 设置一个配置选项，
+     * 设置 $cover 为 false 之后，
+     * 当存在一个 key 不会覆盖。
      * @param $key
      * @param $value
      * @param bool $cover
@@ -237,7 +239,7 @@ class Config
     }
 
     /**
-     * 只获取配置中的某些选项
+     * 只获取配置中的某些选项。
      * @param $keys
      * @return array
      */
