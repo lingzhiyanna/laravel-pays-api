@@ -49,7 +49,7 @@ class PayController extends Controller
         return \PaysApi::pay(
             $config
         );
-        }
+    }
 }
 
 ```
