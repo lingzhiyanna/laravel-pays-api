@@ -1,6 +1,6 @@
 <?php
 
-namespace DavidNineRoc\PaysApi;
+namespace DavidNineRoc\Payment;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -16,7 +16,7 @@ class PaysApiServiceProvider extends ServiceProvider
         // 发布配置文件
         $this->publishes(
             [
-                __DIR__.'/Config/paysapi.php' => config_path('paysapi.php'),
+                __DIR__.'/../config/paysapi.php' => config_path('paysapi.php'),
             ],
             'config'
         );
@@ -29,6 +29,8 @@ class PaysApiServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->bind('paysapi', function () {
+            return new PaysApi();
+        });
     }
 }
