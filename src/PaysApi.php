@@ -4,6 +4,7 @@ namespace DavidNineRoc\Payment;
 
 class PaysApi
 {
+    use Config;
     /**
      * 支付接口.
      *
@@ -20,14 +21,18 @@ class PaysApi
 
     /**
      * 支付操作.
-     *
-     * @param array $config
-     *
      * @return string
      */
-    public function pay(Config $config)
+    public function pay()
     {
-        return $this->buildFormHtml($config->buildPayConfig());
+        return $this->buildFormHtml(
+            $this->buildPayConfig()
+        );
+    }
+
+    public function verify(Config $config)
+    {
+
     }
 
     /**
@@ -35,11 +40,11 @@ class PaysApi
      * @param Config $config
      * @return mixed
      */
-    public function syncPay(Config $config)
+    public function syncPay()
     {
         return $this->httpPost(
             $this->syncPayUrl,
-            $config->buildPayConfig(),
+            $this->buildPayConfig(),
             function ($error) {
                 return [
                     'code' => 400,

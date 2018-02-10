@@ -2,10 +2,9 @@
 
 namespace DavidNineRoc\Payment;
 
-use DavidNineRoc\Payment\Contracts\Repository;
 use DavidNineRoc\Payment\Exceptions\ConfigException;
 
-class Config implements Repository
+trait Config
 {
     protected $config = [];
 
@@ -39,11 +38,18 @@ class Config implements Repository
         ],
     ];
 
-    public function __construct(array $config = [])
+    /**
+     * 一次性设置多个配置项
+     * @param array $config
+     * @return $this
+     */
+    public function setOptions(array $config = [])
     {
         foreach ($config as $key => $value) {
             $this->set($key, $value);
         }
+
+        return $this;
     }
 
     /**

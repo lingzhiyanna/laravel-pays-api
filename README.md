@@ -8,8 +8,6 @@
 
 namespace App\Http\Controllers;
 
-
-use DavidNineRoc\Payment\Contracts\Repository;
 use DavidNineRoc\Payment\PaysApi;
 
 class PayController extends Controller
@@ -17,20 +15,14 @@ class PayController extends Controller
     /**
      * 使用依赖注入的方式
      * @param \DavidNineRoc\Payment\PaysApi $paysApi
-     * @param \DavidNineRoc\Payment\Contracts\Repository $config
      * @return string
      */
-    public function useDependency(PaysApi $paysApi, Repository $config)
+    public function pay(PaysApi $paysApi)
     {
-        $config->setPrice(9)
-            ->setGoodsName('大卫')
-            ->setPayType(1);
-
-        /**
-         * 异步方式提交请使用 syncPay
-         * $paysApi->syncPay($config)
-         */
-        return $paysApi->pay($config);
+        return $paysApi->setPrice(9)
+                    ->setGoodsName('大卫')
+                    ->setPayType(1)
+                    ->pay();
     }
     
      /**
@@ -39,20 +31,7 @@ class PayController extends Controller
      */
     public function useFacedeWay()
     {
-        /**
-         * 如果不是依赖注入的方式，
-         * 需要手动添加 uid, token 等配置。
-         */
-        $config = new Config(
-            config('paysapi')
-        );
-        $config->setPrice(9)
-            ->setGoodsName('大卫')
-            ->setPayType(1);
-
-        return \PaysApi::pay(
-            $config
-        );
+        
     }
 }
 
