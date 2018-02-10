@@ -7,7 +7,16 @@
 
 ****
 [PaysApi支付](https://www.paysapi.com)
-## Example
+## PHP && Example
+```php
+
+```
+## Laravel && Example
+* 发布配置文件(配置好之后再进行下一步)
+```php
+php artisan vendor:publish --provider=DavidNineRoc\Payment\PaysApiServiceProvider::class
+```
+* 尽情的使用吧！！！
 ```php
 <?php
 
