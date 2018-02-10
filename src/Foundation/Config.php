@@ -6,6 +6,10 @@ use DavidNineRoc\Payment\Exceptions\ConfigException;
 
 trait Config
 {
+    /**
+     * 参数配置的容器
+     * @var array
+     */
     protected $config = [];
 
     /**
@@ -39,11 +43,36 @@ trait Config
     ];
 
     /**
-     * 一次性设置多个配置项.
-     *
+     * 回调后台通知包含的参数
+     * @var array
+     */
+    protected $notifyConfig = [
+        'full' => [
+            'paysapi_id',
+            'orderid',
+            'price',
+            'realprice',
+            'orderuid',
+            'key',
+            'token'
+        ],
+        'require' => [
+            'paysapi_id',
+            'orderid',
+            'price',
+            'realprice',
+            'key',
+            'token'
+        ]
+    ];
+
+    /************************************
+     * 设置配置的函数.
+     * 一次性设置多个配置项
      * @param array $config
      *
      * @return $this
+     ************************************
      */
     public function setOptions(array $config = [])
     {
@@ -186,34 +215,43 @@ trait Config
     }
 
     /**
-     * 生成秘钥，
-     * 把使用到的所有参数，连Token一起，
-     * 按参数名字母升序排序。把参数值拼接在一起。
-     * 做md5-32位加密，取字符串小写。得到key。
-     * 网址类型的参数值不要urlencode。
+     * 设置秘钥参数
+     * @param $key
+     * @return $this
      */
-    protected function generateSignKey()
+    protected function setKey($key)
     {
-        $config = $this->config;
-        // 删除掉 key
-        $this->delete('key');
-        // 加上 token
-        $this->set('token', $this->get('token'), false);
-        // 按参数名字母升序排序
-        ksort($config);
-        // 把参数值拼接在一起
-        $key = implode('', $config);
-        // 做md5-32位加密，取字符串小写。得到key
-        $key = strtolower(
-            md5($key)
-        );
-
         $this->set('key', $key);
+
+        return $this;
+    }
+
+
+
+    /************************************
+     * 设置，删除，查询，获取 参数的方法
+     * 删除配置中的某一项。
+     ************************************
+     * 设置一个配置选项，
+     * 设置 $cover 为 false 之后，
+     * 当存在一个 key 不会覆盖。
+     *
+     * @param $key
+     * @param $value
+     * @param bool $cover
+     */
+    public function set($key, $value, $cover = true)
+    {
+        // 如果不强制覆盖，当存在时，则跳过
+        if (!$cover && $this->has($key)) {
+            return;
+        }
+
+        $this->config[$key] = $value;
     }
 
     /**
-     * 删除配置中的某一项。
-     *
+     * 删除一个配置项
      * @param $key
      */
     public function delete($key)
@@ -221,6 +259,18 @@ trait Config
         if (array_key_exists($key, $this->config)) {
             unset($this->config[$key]);
         }
+    }
+
+    /**
+     * 配置中是否存在这个项。
+     *
+     * @param $key
+     *
+     * @return bool
+     */
+    public function has($key)
+    {
+        return array_key_exists($key, $this->config);
     }
 
     /**
@@ -243,34 +293,17 @@ trait Config
     }
 
     /**
-     * 配置中是否存在这个项。
-     *
+     * 获取并删除配置
      * @param $key
-     *
-     * @return bool
+     * @param string $default
+     * @return string
      */
-    public function has($key)
+    public function pull($key, $default = '')
     {
-        return array_key_exists($key, $this->config);
-    }
+        $value = $this->get($key, $default);
+        $this->delete($key);
 
-    /**
-     * 设置一个配置选项，
-     * 设置 $cover 为 false 之后，
-     * 当存在一个 key 不会覆盖。
-     *
-     * @param $key
-     * @param $value
-     * @param bool $cover
-     */
-    public function set($key, $value, $cover = true)
-    {
-        // 如果不强制覆盖，当存在时，则跳过
-        if (!$cover && $this->has($key)) {
-            return;
-        }
-
-        $this->config[$key] = $value;
+        return $value;
     }
 
     /**
@@ -280,45 +313,47 @@ trait Config
      *
      * @return array
      */
-    public function only($keys)
+    protected function only($keys)
     {
-        return array_intersect_key($this->config, array_flip((array) $keys));
+        return $this->config = array_intersect_key($this->config, array_flip((array) $keys));
     }
 
-    /**
-     * 方便门面方式获取自己.
-     *
-     * @return $this
-     */
-    public function getInstance()
-    {
-        return $this;
-    }
 
-    /**
+    /************************************
      * 生成支付所需的参数。
-     *
+     * 1. 先去设置必须包含，但又没有给的参数
+     *    如订单号，可以系统生成
+     * 2. 生成密钥
+     *    对所有参数加密排序
+     * 3. 检查配置项目是否合法，
+     *    uid，token 没有会抛出异常
+     * 4. 返回一个可以生成订单的数组配置
      * @return array
+     ************************************
      */
-    public function buildPayConfig()
+    protected function buildPayConfig()
     {
         // 处理必须的配置
         $this->setPayDefaultConfig();
 
-        // 先生成秘钥
-        $this->generateSignKey();
+        // 生成秘钥
+        $this->setKey(
+            $this->generateSignKey(
+                $this->config
+            )
+        );
 
-        // 取到支付所需的所有参数
-        $config = $this->only(
+        // 支付所需的所有参数
+        $this->only(
             $this->payConfig['full']
         );
 
         $this->checkConfigIsFull(
-            $config,
+            $this->config,
             $this->payConfig['require']
         );
 
-        return $config;
+        return $this->config;
     }
 
     /**
@@ -345,6 +380,29 @@ trait Config
     }
 
     /**
+     * 生成秘钥，
+     * 把使用到的所有参数，连Token一起，
+     * 按参数名字母升序排序。把参数值拼接在一起。
+     * 做md5-32位加密，取字符串小写。得到key。
+     * 网址类型的参数值不要urlencode。
+     * @param $config
+     * @return string
+     */
+    protected function generateSignKey($config)
+    {
+        // 按参数名字母升序排序
+        ksort($config);
+        // 把参数值拼接在一起
+        $key = implode('', $config);
+        // 做md5-32位加密，取字符串小写。得到key
+        $key = strtolower(
+            md5($key)
+        );
+
+        return $key;
+    }
+
+    /**
      * 检查参数是否符合了 $requireConfig 中所有的值
      *
      * @param $config
@@ -363,5 +421,30 @@ trait Config
                 '缺少参数，分别是：['.implode('], [', $diff).']'
             );
         }
+    }
+
+    /************************************
+     * 检查 Notify 参数的合法性，确定是从
+     * 支付接口传过来的消息
+     ************************************
+     */
+    public function verifyNotifyValidity()
+    {
+        $this->only($this->notifyConfig['full']);
+
+        // 检查参数合法性
+        try {
+            $this->checkConfigIsFull($this->config, $this->notifyConfig['require']);
+        } catch (ConfigException $e) {
+            return false;
+        }
+
+        // 获取并弹出秘钥
+        $key = $this->pull('key');
+
+        // 生成秘钥
+        $sign = $this->generateSignKey($this->config);
+
+        return $key === $sign;
     }
 }

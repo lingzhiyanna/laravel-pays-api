@@ -16,6 +16,7 @@
 namespace App\Http\Controllers;
 
 use DavidNineRoc\Payment\PaysApi;
+use Illuminate\Http\Request;
 
 class PayController extends Controller
 {
@@ -60,6 +61,44 @@ class PayController extends Controller
             ->setGoodsName('大卫')
             ->setPayType(1)
             ->syncPay();
+    }
+    
+    /**
+     * 验证付款成功回调通知
+     * 必须调用 setOptions，把所有参数传入
+     * 之后可以调用 verify 验证是否通过
+     * @param PaysApi $paysApi
+     * @param Request $request
+     */
+    public function verify(PaysApi $paysApi, Request $request)
+    {
+        $paysApi
+            ->setOptions($request->all())
+            ->verify(
+                function () {
+                    // 验证通过，写入数据库
+
+                },
+                function () {
+                    // 验证不通过, 写入日志
+                }
+            );
+
+        // 当然，你也可以用这种方式
+        if ($paysApi->setOptions($request->all())->verify()) {
+            // 验证通过，写入数据库
+        } else {
+            // 验证不通过, 写入日志
+        }
+    }
+    
+     /**
+     * 跳转到正常页面
+     * @param Request $request
+     */
+    public function returnUrl(Request $request)
+    {
+        dd($request->input('orderid'));
     }
 }
 
