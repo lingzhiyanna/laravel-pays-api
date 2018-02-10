@@ -427,6 +427,9 @@ trait Config
      */
     protected function checkConfigIsFull($config, $requireConfig)
     {
+        // 取出值为空的项再验证
+        $config = array_filter($config);
+
         $keys = array_keys($config);
 
         $diff = array_diff($requireConfig, $keys);

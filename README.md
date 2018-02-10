@@ -7,14 +7,94 @@
 
 ****
 [PaysApi支付](https://www.paysapi.com)
+## Install
+```php
+composer require davidnineroc/laravel-pays-api
+```
 ## PHP && Example
 ```php
+<?php
 
+require __DIR__.'/vendor/autoload.php';
+
+
+/****************************************
+ * 在原生 PHP 中使用，请记得设置token,uid等配置
+ * 可以通过 setOptions 一次性设置多个
+ * 例子中的等效这个链式调用
+ * $paysApi->setUid()->setToken()->setNotifyUrl()->setReturnUrl();
+*/
+$systemConfig = [
+    // PaysApi 账户中的 uid
+    'uid' => '327e0552dc0f60a92f58247d',
+    // PaysApi 账户中的 token
+    'token' => '76a04a6974741fc4c89be4c95f20302a',
+    // 付款成功后台通知地址
+    'notify_url' => 'http://localhost:8000/notify',
+    // 付款成功前台跳转页面
+    'return_url' => 'http://localhost:8000/notify',
+];
+
+$paysApi = new \DavidNineRoc\Payment\PaysApi();
+$paysApi->setOptions($systemConfig);
+
+/****************************************
+ * 支付相关的配置
+ * 商品价格
+ * 商品名字
+ * 订单类型：默认为1，支付宝
+ * 商品订单号： 不传则自动生成
+ */
+$response = $paysApi->setPrice(9)
+                    ->setGoodsName('大卫')
+                    ->setPayType(2)
+                    ->setOrderUid(
+                        md5(time())
+                    )
+                    ->pay();
+// 将产生一个自动提交的表单
+// echo ($response);
+
+/****************************************
+ *  异步支付，返回json
+ */
+$response = $paysApi->setPrice(9)
+    ->setGoodsName('大卫')
+    ->setPayType(2)
+    ->setOrderUid(
+        md5(time())
+    )
+    ->syncPay();
+
+echo $response;
+
+/****************************************
+ *  判断是否成功付款
+ */
+$paysApi->setOptions($_REQUEST)->verify(function () {
+    // 成功，写入数据库
+}, function () {
+    // 失败，写入日志
+});
+// 也可以这样子调用
+if ($paysApi->setOptions($_REQUEST)->verify()) {
+    // 成功，写入数据库
+} else {
+    // 失败，写入日志
+}
+
+/****************************************
+ *  查找订单号
+ */
+$orderId = '12345678910';
+$order = $paysApi->find($orderId);
+// json 数据
+var_dump($order);
 ```
 ## Laravel && Example
 * 发布配置文件(配置好之后再进行下一步)
 ```php
-php artisan vendor:publish --provider=DavidNineRoc\Payment\PaysApiServiceProvider::class
+php artisan vendor:publish --provider=DavidNineRoc\Payment\PaysApiServiceProvider
 ```
 * 尽情的使用吧！！！
 ```php
@@ -64,6 +144,7 @@ class PayController extends Controller
      */
     public function syncPay(PaysApi $paysApi)
     {
+        // json 字符串
         return $paysApi->setPrice(9)
             ->setGoodsName('大卫')
             ->setPayType(1)
@@ -106,8 +187,9 @@ class PayController extends Controller
      public function queryOrder(PaysApi $paysApi)
      {
          $orderId = '12345678910';
- 
-         $paysApi->find($orderId);
+         
+         // json 字符串
+         dd($paysApi->find($orderId));
      }
 }
 
