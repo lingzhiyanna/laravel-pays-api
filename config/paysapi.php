@@ -11,7 +11,6 @@ return [
      */
     'token' => env('PAYS_API_TOKEN'),
 
-
     /*
      * 付款成功后台通知地址
      */

@@ -8,8 +8,10 @@ use DavidNineRoc\Payment\Exceptions\ConfigException;
 class Config implements Repository
 {
     protected $config = [];
+
     /**
-     * 订单必须的配置参数
+     * 订单必须的配置参数.
+     *
      * @var array
      */
     protected $payConfig = [
@@ -23,7 +25,7 @@ class Config implements Repository
             'orderid',
             'orderuid',
             'goodsname',
-            'key'
+            'key',
         ],
         // 必须的参数列表
         'require' => [
@@ -33,8 +35,8 @@ class Config implements Repository
             'notify_url',
             'return_url',
             'orderid',
-            'key'
-        ]
+            'key',
+        ],
     ];
 
     public function __construct(array $config = [])
@@ -44,10 +46,11 @@ class Config implements Repository
         }
     }
 
-
     /**
      * 设置 uid 您的商户唯一标识，注册后在设置里获得。一个24位字符串。
+     *
      * @param $uid
+     *
      * @return $this
      */
     public function setUid($uid)
@@ -59,7 +62,9 @@ class Config implements Repository
 
     /**
      * 设置 token。
+     *
      * @param $token
+     *
      * @return $this
      */
     public function setToken($token)
@@ -71,7 +76,9 @@ class Config implements Repository
 
     /**
      * 设置商品价格 单位：元。精确小数点后2位。
+     *
      * @param $price
+     *
      * @return $this
      */
     public function setPrice($price)
@@ -83,7 +90,9 @@ class Config implements Repository
 
     /**
      * 设置付款方式 1：支付宝；2：微信支付。
+     *
      * @param $type
+     *
      * @return $this
      */
     public function setPayType($type)
@@ -96,7 +105,9 @@ class Config implements Repository
     /**
      * 设置通知回调网址。
      * 用户支付成功后，我们服务器会主动发送一个post消息到这个网址。
+     *
      * @param $notifyUrl
+     *
      * @return $this
      */
     public function setNotifyUrl($notifyUrl)
@@ -109,7 +120,9 @@ class Config implements Repository
     /**
      * 设置跳转网址。
      * 用户支付成功后，我们会让用户浏览器自动跳转到这个网址。
+     *
      * @param $returnUrl
+     *
      * @return $this
      */
     public function setReturnUrl($returnUrl)
@@ -122,7 +135,9 @@ class Config implements Repository
     /**
      * 设置商户自定义订单号。
      * 我们会据此判别是同一笔订单还是新订单。回调时，会带上这个参数。
+     *
      * @param $orderId
+     *
      * @return $this
      */
     public function setOrderId($orderId)
@@ -136,7 +151,9 @@ class Config implements Repository
      * 设置商户自定义客户号。
      * 我们会显示在您后台的订单列表中，方便您看到是哪个用户的付款，
      * 强烈建议填写。可以填用户名也可以填您数据库中的用户uid。
+     *
      * @param $uid
+     *
      * @return $this
      */
     public function setOrderUid($uid)
@@ -148,7 +165,9 @@ class Config implements Repository
 
     /**
      * 设置商品名字。
+     *
      * @param $goodsName
+     *
      * @return $this
      */
     public function setGoodsName($goodsName)
@@ -184,9 +203,9 @@ class Config implements Repository
         $this->set('key', $key);
     }
 
-
     /**
      * 删除配置中的某一项。
+     *
      * @param $key
      */
     public function delete($key)
@@ -198,8 +217,10 @@ class Config implements Repository
 
     /**
      * 获取一个配置项。
+     *
      * @param $key
      * @param string $default
+     *
      * @return string
      */
     public function get($key, $default = '')
@@ -215,7 +236,9 @@ class Config implements Repository
 
     /**
      * 配置中是否存在这个项。
+     *
      * @param $key
+     *
      * @return bool
      */
     public function has($key)
@@ -227,6 +250,7 @@ class Config implements Repository
      * 设置一个配置选项，
      * 设置 $cover 为 false 之后，
      * 当存在一个 key 不会覆盖。
+     *
      * @param $key
      * @param $value
      * @param bool $cover
@@ -234,8 +258,8 @@ class Config implements Repository
     public function set($key, $value, $cover = true)
     {
         // 如果不强制覆盖，当存在时，则跳过
-        if (! $cover && $this->has($key)) {
-            return ;
+        if (!$cover && $this->has($key)) {
+            return;
         }
 
         $this->config[$key] = $value;
@@ -243,7 +267,9 @@ class Config implements Repository
 
     /**
      * 只获取配置中的某些选项。
+     *
      * @param $keys
+     *
      * @return array
      */
     public function only($keys)
@@ -252,7 +278,8 @@ class Config implements Repository
     }
 
     /**
-     * 方便门面方式获取自己
+     * 方便门面方式获取自己.
+     *
      * @return $this
      */
     public function getInstance()
@@ -262,6 +289,7 @@ class Config implements Repository
 
     /**
      * 生成支付所需的参数。
+     *
      * @return array
      */
     public function buildPayConfig()
@@ -291,17 +319,17 @@ class Config implements Repository
      */
     protected function setPayDefaultConfig()
     {
-        if (! $this->has('price')) {
+        if (!$this->has('price')) {
             $this->setPrice(0.01);
         }
 
         // 默认支付宝支付
-        if (! $this->has('istype')) {
+        if (!$this->has('istype')) {
             $this->setPayType(1);
         }
 
         // 建议自己生成 uuid
-        if (! $this->has('orderid')) {
+        if (!$this->has('orderid')) {
             $this->setOrderId(
                 md5(microtime())
             );
@@ -310,8 +338,10 @@ class Config implements Repository
 
     /**
      * 检查参数是否符合了 $requireConfig 中所有的值
+     *
      * @param $config
      * @param $requireConfig
+     *
      * @throws ConfigException
      */
     protected function checkConfigIsFull($config, $requireConfig)
@@ -320,9 +350,9 @@ class Config implements Repository
 
         $diff = array_diff($requireConfig, $keys);
         // 如果不为空，代表所需参数不齐全
-        if (! empty($diff)) {
+        if (!empty($diff)) {
             throw new ConfigException(
-                "缺少参数，分别是：[" . implode('], [', $diff) . "]"
+                '缺少参数，分别是：['.implode('], [', $diff).']'
             );
         }
     }
