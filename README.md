@@ -53,7 +53,7 @@ $response = $paysApi->setPrice(9)
                     )
                     ->pay();
 // 将产生一个自动提交的表单
-// echo ($response);
+echo $response;
 
 /****************************************
  *  异步支付，返回json
