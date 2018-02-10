@@ -7,8 +7,13 @@ class PaysApi
     protected $config;
 
 
-    public function pay()
+    public function pay(array $config)
     {
         return 'Hello';
+    }
+
+    public function syncPay(array  $config)
+    {
+
     }
 }

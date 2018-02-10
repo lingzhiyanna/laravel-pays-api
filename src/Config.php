@@ -6,10 +6,10 @@ class Config
 {
     protected $config = [];
 
-    public function __construct(array $config)
+    public function __construct(array $config = [])
     {
         foreach ($config as $key => $value) {
-            $this->setConfig($key, $value);
+            $this->set($key, $value);
         }
     }
 
@@ -21,7 +21,19 @@ class Config
      */
     public function setUid($uid)
     {
-        $this->setConfig('uid', $uid);
+        $this->set('uid', $uid);
+
+        return $this;
+    }
+
+    /**
+     * 设置 token
+     * @param $token
+     * @return $this
+     */
+    public function setToken($token)
+    {
+        $this->set('token', $token);
 
         return $this;
     }
@@ -33,7 +45,7 @@ class Config
      */
     public function setPrice($price)
     {
-        $this->setConfig('price', $price);
+        $this->set('price', $price);
 
         return $this;
     }
@@ -45,7 +57,7 @@ class Config
      */
     public function setPayType($type)
     {
-        $this->setConfig('istype', $type);
+        $this->set('istype', $type);
 
         return $this;
     }
@@ -58,7 +70,7 @@ class Config
      */
     public function setNotifyUrl($notifyUrl)
     {
-        $this->setConfig('notify_url', $notifyUrl);
+        $this->set('notify_url', $notifyUrl);
 
         return $this;
     }
@@ -71,7 +83,7 @@ class Config
      */
     public function setReturnUrl($returnUrl)
     {
-        $this->setConfig('return_url', $returnUrl);
+        $this->set('return_url', $returnUrl);
 
         return $this;
     }
@@ -84,7 +96,7 @@ class Config
      */
     public function setOrderId($orderId)
     {
-        $this->setConfig('orderid', $orderId);
+        $this->set('orderid', $orderId);
 
         return $this;
     }
@@ -98,7 +110,7 @@ class Config
      */
     public function setOrderUid($uid)
     {
-        $this->setConfig('orderuid', $uid);
+        $this->set('orderuid', $uid);
 
         return $this;
     }
@@ -110,18 +122,127 @@ class Config
      */
     public function setGoodsName($goodsName)
     {
-        $this->setConfig('goodsname', $goodsName);
+        $this->set('goodsname', $goodsName);
 
         return $this;
     }
 
     /**
+     * 生成支付所需的参数
+     * @return array
+     */
+    public function buildPayConfig()
+    {
+        // 先生成秘钥
+        $this->generateSignKey();
+
+        // 获取支付所需的参数
+        $config = $this->only([
+            'uid',
+            'price',
+            'istype',
+            'notify_url',
+            'return_url',
+            'orderid',
+            'orderuid',
+            'goodsname',
+            'key'
+        ]);
+
+        return $config;
+    }
+
+    /**
+     * 生成秘钥
+     * 把使用到的所有参数，连Token一起，
+     * 按参数名字母升序排序。把参数值拼接在一起。
+     * 做md5-32位加密，取字符串小写。得到key。
+     * 网址类型的参数值不要urlencode。
+     */
+    protected function generateSignKey()
+    {
+        $config = $this->config;
+        // 删除掉 key
+        $this->delete('key');
+        // 加上 token
+        $this->set('token', $this->get('token'), false);
+        // 按参数名字母升序排序
+        ksort($config);
+        // 把参数值拼接在一起
+        $key = implode('', $config);
+        // 做md5-32位加密，取字符串小写。得到key
+        $key = strtolower(
+            md5($key)
+        );
+
+        $this->set('key', $key);
+    }
+
+
+    /**
+     * 删除配置中的某一项
+     * @param $key
+     */
+    public function delete($key)
+    {
+        if (array_key_exists($key, $this->config)) {
+            unset($this->config[$key]);
+        }
+    }
+
+
+    /**
+     * 获取一个配置项
+     * @param $key
+     * @param string $default
+     * @return string
+     */
+    public function get($key, $default = '')
+    {
+        if ($this->has($key)) {
+            $value = $this->config[$key];
+        } else {
+            $value = $default;
+        }
+
+        return $value;
+    }
+
+    /**
+     * 配置中是否存在这个项
+     * @param $key
+     * @return bool
+     */
+    public function has($key)
+    {
+        return array_key_exists($key, $this->config);
+    }
+
+    /**
      * 设置一个配置选项
+     * 设置 $cover 为 false 之后
+     * 当存在一个 key 不会覆盖
      * @param $key
      * @param $value
+     * @param bool $cover
      */
-    public function setConfig($key, $value)
+    public function set($key, $value, $cover = true)
     {
+        // 如果不强制覆盖，当存在时，则跳过
+        if (! $cover && $this->has($key)) {
+            return ;
+        }
+
         $this->config[$key] = $value;
+    }
+
+    /**
+     * 只获取配置中的某些选项
+     * @param $keys
+     * @return array
+     */
+    public function only($keys)
+    {
+        return array_intersect_key($this->config, array_flip((array) $keys));
     }
 }
