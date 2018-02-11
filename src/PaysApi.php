@@ -61,12 +61,7 @@ class PaysApi
         return Http::post(
             $this->syncPayUrl,
             $this->buildPayConfig(),
-            function ($error) {
-                return [
-                    'code' => 400,
-                    'msg' => $error,
-                ];
-            }
+            $this->responseJson()
         );
     }
 
@@ -102,12 +97,23 @@ class PaysApi
         return Http::get(
                 $this->queryUrl,
                 $this->config,
-                function ($error) {
-                    return [
-                        'code' => 400,
-                        'msg' => $error,
-                    ];
-                }
+                $this->responseJson()
             );
+    }
+
+    /**
+     * 异步回调，错误时，返回错误消息的闭包
+     * @return Closure
+     */
+    protected function responseJson()
+    {
+        return function ($error) {
+            return json_encode(
+                [
+                    'code' => 400,
+                    'msg' => $error,
+                ]
+            );
+        };
     }
 }
