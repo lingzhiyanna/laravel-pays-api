@@ -8,7 +8,7 @@ class PaysTest extends \PHPUnit\Framework\TestCase
     {
         parent::setUp();
 
-        if (! function_exists('env')) {
+        if (!function_exists('env')) {
             function env($key, $default = '')
             {
                 return md5(
@@ -32,6 +32,7 @@ class PaysTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @depends testPaysObject
+     *
      * @param PaysApi $paysApi
      */
     public function testApi(PaysApi $paysApi)
