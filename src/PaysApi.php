@@ -102,7 +102,8 @@ class PaysApi
     }
 
     /**
-     * 异步回调，错误时，返回错误消息的闭包
+     * 异步回调，错误时，返回错误消息的闭包.
+     *
      * @return Closure
      */
     protected function responseJson()
