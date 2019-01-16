@@ -27,9 +27,9 @@ require __DIR__.'/vendor/autoload.php';
 */
 $systemConfig = [
     // PaysApi 账户中的 uid
-    'uid' => '327e0552dc0f60a92f58247d',
+    'uid' => 'xxxx',
     // PaysApi 账户中的 token
-    'token' => '76a04a6974741fc4c89be4c95f20302a',
+    'token' => 'xxx',
     // 付款成功后台通知地址
     'notify_url' => 'http://localhost:8000/notify',
     // 付款成功前台跳转页面
